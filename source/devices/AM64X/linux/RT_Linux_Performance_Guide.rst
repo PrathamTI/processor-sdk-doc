@@ -36,14 +36,61 @@ https://e2e.ti.com/ or https://support.ti.com/
 System Benchmarks
 -----------------
 
+Stress-ng and Cyclic Test
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _RT-linux-performance:
+
+stress-ng (next-generation) will stress test a embedded platform in
+various selectable ways. It was designed to exercise various physical
+subsystems as well as the various operating system kernel interfaces.
+stress-ng can also measure test throughput rates; this can be useful to
+observe performance changes across different operating system or types
+of hardware.
+
+Cyclictest is most commonly used for benchmarking RT systems. It is one
+of the most frequently used tools for evaluating the relative
+performance of real-time systems. Some performance tests which use
+Cyclictest are System benchmarking, Latency debugging with tracing and
+-approximating application performance.
+
+Test commands used for running stress-ng and cyclictest together
+
+.. code:: console
+
+   stress-ng --cpu-method=all -c 4 &
+   cyclictest -m -Sp80 -D6h -h400 -i200 -M -q
+
+The following summarizes the latencies observed using the yocto based
+default SDK image:
+
+.. note::
+
+   A known issue in this SDK release is affecting this benchmark.
+   Using OP-TEE's PRNG drivers rather than the hardware accelerated TRNG
+   drivers restores the context switch latencies to the values you see
+   here.
+
+   More information on switching to the PRNG drivers can be found in the
+   Foundational Components section, here :ref:`building-optee-with-prng`
+
+.. csv-table::
+   :header: "Latencies","CPU 0","CPU 1"
+
+   "Minimum (usec)","6","6"
+   "Average (usec)","9","9"
+   "Maximum (usec)","58","73"
+
+.. image:: img/rt-cpu-method-all-latency-histogram.png
+
 LMBench
 ^^^^^^^
-LMBench is a collection of microbenchmarks of which the memory bandwidth 
-and latency related ones are typically used to estimate processor 
-memory system performance. More information about lmbench at 
+LMBench is a collection of microbenchmarks of which the memory bandwidth
+and latency related ones are typically used to estimate processor
+memory system performance. More information about lmbench at
 https://lmbench.sourceforge.net/whatis_lmbench.html and
 https://lmbench.sourceforge.net/man/lmbench.8.html
-  
+
 **Latency**: lat_mem_rd-stride128-szN, where N is equal to or smaller than the cache
 size at given level measures the cache miss penalty. N that is at least
 double the size of last level cache is the latency to external memory.
@@ -343,7 +390,7 @@ To start netserver:
 ::
 
    netserver [-p <port_number>] [-4 (IPv4 addressing)] [-6 (IPv6 addressing)]
- 
+
 Running the following shell script from the DUT will trigger netperf clients to measure
 bidirectional TCP performance for 60 seconds and report CPU utilization. Parameter -k is used in
 client commands to summarize selected statistics on their own line and -j is used to gain
@@ -414,13 +461,13 @@ CPSW/CPSW2g/CPSW3g Ethernet Driver
 ICSSG Ethernet Driver
 ^^^^^^^^^^^^^^^^^^^^^
 
-.. rubric::  TCP Bidirectional Throughput 
+.. rubric::  TCP Bidirectional Throughput
    :name: tcp-bidirectional-throughput
 
 .. csv-table:: ICSSG TCP Bidirectional Throughput
     :header: "Command Used","am64xx-hsevm: THROUGHPUT (Mbits/sec)","am64xx-hsevm: CPU Load % (LOCAL_CPU_UTIL)"
 
-    "netperf -H 192.168.2.1 -j -c -C -l 60 -t TCP_STREAM; netperf -H 192.168.2.1 -j -c -C -l 60 -t TCP_MAERTS","790.93 (min 354.76, max 1107.29)","91.56 (min 77.94, max 99.77)"
+    "netperf -H 192.168.2.1 -j -c -C -l 60 -t TCP_STREAM; netperf -H 192.168.2.1 -j -c -C -l 60 -t TCP_MAERTS","1007.16 ","99.64"
 
 .. rubric::  TCP Bidirectional Throughput Interrupt Pacing
    :name: ICSSG-tcp-bidirectional-throughput-interrupt-pacing
@@ -428,31 +475,39 @@ ICSSG Ethernet Driver
 .. csv-table:: ICSSG TCP Bidirectional Throughput Interrupt Pacing
     :header: "Command Used","am64xx-hsevm: THROUGHPUT (Mbits/sec)","am64xx-hsevm: CPU Load % (LOCAL_CPU_UTIL)"
 
-    "netperf -H 192.168.2.1 -j -c -C -l 60 -t TCP_STREAM; netperf -H 192.168.2.1 -j -c -C -l 60 -t TCP_MAERTS","579.53 (min 185.68, max 1028.30)","50.57 (min 20.62, max 78.90)"
+    "netperf -H 192.168.2.1 -j -c -C -l 60 -t TCP_STREAM; netperf -H 192.168.2.1 -j -c -C -l 60 -t TCP_MAERTS","1108.21 ","98.21"
 
 .. rubric::  UDP Egress Throughput
    :name: udp-egress-throughput-0-loss
 
 .. csv-table:: ICSSG UDP Egress Throughput 0 loss
-    :header: "Frame Size(bytes)","am64xx-hsevm: UDP Datagram Size(bytes) (LOCAL_SEND_SIZE)","am64xx-hsevm: THROUGHPUT (Mbits/sec)","am64xx-hsevm: Packets Per Second (kPPS)","am64xx-hsevm: CPU Load % (LOCAL_CPU_UTIL)"
+    :header: "Frame Size(bytes)","am64xx-hsevm: THROUGHPUT (Mbits/sec)","am64xx-hsevm: Packets Per Second (kPPS)","am64xx-hsevm: CPU Load % (LOCAL_CPU_UTIL)"
 
-    "64","18.00","30.77 (min 21.63, max 40.56)","60.13 (min 42.00, max 79.00)","73.74 (min 57.66, max 89.55)"
-    "128","82.00","66.04 (min 45.59, max 78.52)","64.67 (min 45.00, max 77.00)","79.53 (min 60.70, max 89.42)"
-    "256","210.00","126.02 (min 75.65, max 155.88)","61.50 (min 37.00, max 76.00)","77.46 (min 54.35, max 89.57)"
-    "1024","978.00","495.53 (min 21.30, max 583.10)","60.63 (min 3.00, max 71.00)","77.25 (min 6.51, max 91.47)"
-    "1472","1472.00","461.76 (min 5.89, max 798.58)","39.38 (min 1.00, max 68.00)","52.42 (min 0.17, max 90.19)"
+    "64","30.77 ","60.13 ","73.74 "
+    "128","66.04 ","64.67 ","79.53 "
+    "256","126.02 ","61.50 ","77.46 "
+    "1024","495.53 ","60.63 ","77.25 "
+    "1472","789.13 ","67 ","89.64 "
 
 .. rubric::  UDP Ingress Throughput
    :name: udp-ingress-throughput-0-loss
 
 .. csv-table:: ICSSG UDP Ingress Throughput 0 loss
-    :header: "Frame Size(bytes)","am64xx-hsevm: UDP Datagram Size(bytes) (LOCAL_SEND_SIZE)","am64xx-hsevm: THROUGHPUT (Mbits/sec)","am64xx-hsevm: Packets Per Second (kPPS)","am64xx-hsevm: CPU Load %"
+    :header: "Frame Size(bytes)","am64xx-hsevm: THROUGHPUT (Mbits/sec)","am64xx-hsevm: Packets Per Second (kPPS)","am64xx-hsevm: CPU Load %"
 
-    "64","18.00","2.15 (min 2.00, max 2.51)","4.14 (min 4.00, max 5.00)","1.49 (min 0.24, max 6.15)"
-    "128","82.00","4.96 (min 3.89, max 6.35)","4.78 (min 4.00, max 6.00)","3.72 (min 0.12, max 7.48)"
-    "256","210.00","10.21 (min 9.42, max 11.06)","5.00","2.97 (min 0.29, max 7.62)"
-    "1024","978.00","44.54 (min 42.60, max 48.33)","5.25 (min 5.00, max 6.00)","6.07 (min 0.25, max 7.97)"
-    "1472","1472.00","96.85 (min 62.41, max 174.28)","8.00 (min 5.00, max 15.00)","10.12 (min 4.00, max 20.47)"
+    "64","2.15 ","4.14 ","1.49 "
+    "128","4.96 ","4.78 ","3.72 "
+    "256","10.21 ","5.00 ","2.97 "
+    "1024","44.54 ","5.25 ","6.07 "
+    "1472","631.74 ","54 ","68.59 "
+
+.. rubric:: Switch Mode
+   :name: icssg-switch-mode
+
+.. csv-table:: ICSSG Switch Mode Forwarding
+   :header: "Mode","am64xx-hsevm: THROUGHPUT (Mbits/sec)","am64xx-hsevm: CPU Load % (SENDER)","am64xx-hsevm: CPU Load % (FORWARDING)","am64xx-hsevm: CPU Load % (RECIEVER)"
+
+   "Switch with HW Offload","938","0.3","0.12","37.74"
 
 .. rubric:: HSR Mode
    :name: icssg-hsr-mode
@@ -460,8 +515,8 @@ ICSSG Ethernet Driver
 .. csv-table:: ICSSG HSR Mode Forwarding
    :header: "Mode","am64xx-hsevm: THROUGHPUT (Mbits/sec)","am64xx-hsevm: CPU Load % (SENDER)","am64xx-hsevm: CPU Load % (FORWARDING)","am64xx-hsevm: CPU Load % (RECIEVER)"
 
-   "HSR with HW Offload","420","62.01","0","69.11"
-   "HSR with SW Offload","388","65","27.68","70"
+   "HSR with HW Offload","412","47.45","0.13","44.52"
+   "HSR with SW Offload","387","39.58","27.13","48.74"
 
 |
 

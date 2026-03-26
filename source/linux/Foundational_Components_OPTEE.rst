@@ -31,8 +31,8 @@ Where <hash> is the OPTEE commit shown in :ref:`release-specific-build-informati
 
 |
 
-Setting up the toolchain paths
-------------------------------
+Setup Cross Compile Environment
+-------------------------------
 
 .. include:: Overview/GCC_ToolChain.rst
    :start-after: .. start_include_yocto_toolchain_host_setup
@@ -54,13 +54,18 @@ Building the OP-TEE image
 
    .. parsed-literal::
 
-      $ make CROSS_COMPILE="$CROSS_COMPILE_32" CROSS_COMPILE64="$CROSS_COMPILE_64" PLATFORM=|__OPTEE_PLATFORM_FLAVOR__| CFG_ARM64_core=y
+      $ make CROSS_COMPILE="$CROSS_COMPILE_32" CROSS_COMPILE64="$CROSS_COMPILE_64" PLATFORM=\ |__OPTEE_PLATFORM_FLAVOR__| CFG_ARM64_core=y
+
+   .. warning::
+
+      If building OP-TEE on AM62SIP, add the following argument to the above make command:
+      ``CFG_TZDRAM_START=0x80080000``
 
 .. ifconfig:: CONFIG_part_variant in ('AM62LX')
 
    .. parsed-literal::
 
-      $ make CROSS_COMPILE64="$CROSS_COMPILE_64" PLATFORM=|__OPTEE_PLATFORM_FLAVOR__| CFG_ARM64_core=y CFG_USER_TA_TARGETS=ta_arm64
+      $ make CROSS_COMPILE64="$CROSS_COMPILE_64" PLATFORM=\ |__OPTEE_PLATFORM_FLAVOR__| CFG_ARM64_core=y CFG_USER_TA_TARGETS=ta_arm64
 
 Building the OP-TEE image with debug parameters
 ***********************************************
@@ -69,13 +74,13 @@ Building the OP-TEE image with debug parameters
 
    .. parsed-literal::
 
-      $ make CROSS_COMPILE="$CROSS_COMPILE_32" CROSS_COMPILE64="$CROSS_COMPILE_64" PLATFORM=|__OPTEE_PLATFORM_FLAVOR__| CFG_ARM64_core=y CFG_TEE_CORE_LOG_LEVEL=2 CFG_TEE_CORE_DEBUG=y
+      $ make CROSS_COMPILE="$CROSS_COMPILE_32" CROSS_COMPILE64="$CROSS_COMPILE_64" PLATFORM=\ |__OPTEE_PLATFORM_FLAVOR__| CFG_ARM64_core=y CFG_TEE_CORE_LOG_LEVEL=2 CFG_TEE_CORE_DEBUG=y
 
 .. ifconfig:: CONFIG_part_variant in ('AM62LX')
 
    .. parsed-literal::
 
-      $ make CROSS_COMPILE64="$CROSS_COMPILE_64" PLATFORM=|__OPTEE_PLATFORM_FLAVOR__| CFG_ARM64_core=y CFG_TEE_CORE_LOG_LEVEL=2 CFG_TEE_CORE_DEBUG=y CFG_USER_TA_TARGETS=ta_arm64
+      $ make CROSS_COMPILE64="$CROSS_COMPILE_64" PLATFORM=\ |__OPTEE_PLATFORM_FLAVOR__| CFG_ARM64_core=y CFG_TEE_CORE_LOG_LEVEL=2 CFG_TEE_CORE_DEBUG=y CFG_USER_TA_TARGETS=ta_arm64
 
 .. _building-optee-with-prng:
 
@@ -91,13 +96,13 @@ of entropy can work around these issues.
 
    .. parsed-literal::
 
-      $ make CROSS_COMPILE="$CROSS_COMPILE_32" CROSS_COMPILE64="$CROSS_COMPILE_64" PLATFORM=k3-|__OPTEE_PLATFORM_FLAVOR__| CFG_ARM64_core=y CFG_WITH_SOFTWARE_PRNG=y
+      $ make CROSS_COMPILE="$CROSS_COMPILE_32" CROSS_COMPILE64="$CROSS_COMPILE_64" PLATFORM=\ |__OPTEE_PLATFORM_FLAVOR__| CFG_ARM64_core=y CFG_WITH_SOFTWARE_PRNG=y
 
 .. ifconfig:: CONFIG_part_variant in ('AM62LX')
 
    .. parsed-literal::
 
-      $ make CROSS_COMPILE64="$CROSS_COMPILE_64" PLATFORM=k3-|__OPTEE_PLATFORM_FLAVOR__| CFG_ARM64_core=y CFG_WITH_SOFTWARE_PRNG=y CFG_USER_TA_TARGETS=ta_arm64
+      $ make CROSS_COMPILE64="$CROSS_COMPILE_64" PLATFORM=\ |__OPTEE_PLATFORM_FLAVOR__| CFG_ARM64_core=y CFG_WITH_SOFTWARE_PRNG=y CFG_USER_TA_TARGETS=ta_arm64
 
 .. _secure-storage-with-rpmb:
 
@@ -151,7 +156,7 @@ encrypted binary blobs created by REE FS in
 
    .. parsed-literal::
 
-      $ make CROSS_COMPILE64="$CROSS_COMPILE_64" PLATFORM=|__OPTEE_PLATFORM_FLAVOR__| CFG_ARM64_core=y CFG_REE_FS=y CFG_RPMB_FS=y
+      $ make CROSS_COMPILE64="$CROSS_COMPILE_64" PLATFORM=\ |__OPTEE_PLATFORM_FLAVOR__| CFG_ARM64_core=y CFG_REE_FS=y CFG_RPMB_FS=y
 
    OPTEE-client also needs to be updated to enable the use of real
    emmc instead of the virtual emmc that is enabled by default

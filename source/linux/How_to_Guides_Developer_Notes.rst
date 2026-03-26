@@ -19,7 +19,6 @@ Developer Notes
    How_to_Guides/Target/How_to_Change_dtb_File
    How_to_Guides/Target/How_to_Set_Display_for_AM572x_GP_EVM
    How_to_Guides/Target/How_To_Enable_M2CC3301_in_linux
-   How_to_Guides/Target/How_to_Boot_Beagle_Bone_Black_with_Processor_SDK_Linux
    How_to_Guides/Target/How_to_flash_emmc_device
    How_to_Guides/Target/How_to_emmc_boot
    How_to_Guides/Target/How_to_mmcsd_boot_emmc_uda

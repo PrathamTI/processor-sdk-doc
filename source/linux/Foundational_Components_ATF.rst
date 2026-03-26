@@ -22,7 +22,7 @@ on to either the Linux kernel or U-Boot in the non-secure world.
    (SCMI) protocol to manage clocks and power domains. SCMI is a standardized interface for
    system control and management, providing a common way to access and control system resources.
    The SCMI IDs used in the AM62L TF-A implementation are documented in the
-   `TF-A documentation <https://github.com/TexasInstruments/arm-trusted-firmware/blob/ti-master/docs/plat/ti-am62l.rst>`__.
+   `TF-A documentation <https://github.com/TexasInstruments/arm-trusted-firmware/blob/ti-tfa-2.14.y/docs/plat/ti-k3-am62l.rst>`__.
 
    .. rubric:: SCMI and TI SCI
 
@@ -90,7 +90,7 @@ Where <hash> is the commit shown in :ref:`release-specific-build-information`.
 
 |
 
-.. rubric:: Setting up the toolchain paths
+.. rubric:: Setup Cross Compile Environment
 
 .. include:: Overview/GCC_ToolChain.rst
    :start-after: .. start_include_yocto_toolchain_host_setup
@@ -107,6 +107,11 @@ Where <hash> is the commit shown in :ref:`release-specific-build-information`.
                $ export TFA_DIR=<path-to-arm-trusted-firmware>
                $ cd $TFA_DIR
                $ make ARCH=aarch64 CROSS_COMPILE="$CROSS_COMPILE_64" PLAT=k3 TARGET_BOARD=lite SPD=opteed
+
+            .. warning::
+
+               If building TF-A on AM62SIP, add the following arguments to the above make command:
+               ``BL32_BASE=0x80080000 PRELOADED_BL33_BASE=0x82000000``
 
     .. ifconfig:: CONFIG_part_variant in ('AM62LX')
 

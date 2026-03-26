@@ -99,6 +99,7 @@ linux/Foundational_Components/Power_Management/pm_debug
 linux/Foundational_Components/System_Security/Security_overview
 linux/Foundational_Components/System_Security/SELinux
 linux/Foundational_Components/System_Security/Auth_boot
+linux/Foundational_Components/System_Security/Memory_Firewalls
 
 linux/Foundational_Components_PRU_Subsystem
 linux/Foundational_Components/PRU-ICSS-Linux-Drivers
@@ -182,6 +183,7 @@ linux/Demo_User_Guides/index_Demos
 linux/Demo_User_Guides/TI_Apps_Launcher_User_Guide
 linux/Demo_User_Guides/Seva_Store
 linux/Demo_User_Guides/Chromium_Browser
+linux/Demo_User_Guides/GUI_Frameworks_User_Guide
 
 common/PRU-ICSS/Getting_Started_with_PSSP
 common/PRU-ICSS/Header_Files
@@ -202,5 +204,8 @@ common/PRU-ICSS/PRU-Getting-Started-Labs_Lab4_TIRTOS
 common/PRU-ICSS/PRU-Getting-Started-Labs_Lab5
 common/PRU-ICSS/PRU-Hands-on-Labs
 common/PRU-ICSS/Resource_Tables
+
+boards/index
+boards/beagle/BeaglePlay/BeaglePlay
 
 linux/Documentation_Tarball

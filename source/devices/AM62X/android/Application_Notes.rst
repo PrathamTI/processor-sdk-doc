@@ -9,6 +9,7 @@ Application Notes
 
    /android/Application_Notes_Partitions
    Application_Notes_dtbo_support
+   /android/Application_Notes_M2_WiFi_BT
    /android/Application_Notes_Android_Bootloader_SD_Card
    /android/Application_Notes_Android_SD_CARD
    /android/Application_Notes_Android_Dual_Screen
@@ -16,5 +17,4 @@ Application Notes
    /android/Application_Notes_Camera
    /android/Application_Notes_Simple_UI_App
    /android/Application_Notes_Sample_Maps_App
-   Application_Notes_BeaglePlay
    /android/Application_Notes_Android_Secure_Build
