@@ -1,4 +1,12 @@
 devices/AM62DX/index
+devices/AM62DX/edgeai/index
+devices/AM62DX/edgeai/getting_started
+devices/AM62DX/edgeai/gst_pipelines
+devices/AM62DX/edgeai/gst_pipelines/audio_enhancement
+devices/AM62DX/edgeai/gst_pipelines/audio_classification
+devices/AM62DX/edgeai/gst_pipelines/pipeline_elements
+devices/AM62DX/edgeai/gst_pipelines/advanced_usage
+devices/AM62DX/edgeai/faq
 devices/AM62DX/index_RTOS
 devices/AM62DX/linux/Overview
 devices/AM62DX/linux/Overview_Getting_Started_Guide
