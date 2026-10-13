@@ -15,14 +15,17 @@ deinterleave/interleave, and ``titvm`` for TVM model inference.
    :maxdepth: 5
    :numbered:
 
-   introduction
+   overview
+   getting_started_platform
+   out_of_box_demo
+   linux_audio_inference_app
+   getting_started_gstreamer
+   audio_ai_model_workflow
    model_zoo
    model_compile_evaluate
    model_inspect
    performance
-   getting_started
-   gst_pipelines
-   faq
+
 
 |
 
