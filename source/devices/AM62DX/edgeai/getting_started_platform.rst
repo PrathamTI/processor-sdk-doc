@@ -183,6 +183,8 @@ to access the boot logs and Linux console:
    If you cannot input text in minicom, disable Hardware Flow Control:
    Press Ctrl+A, then O (Setup), then S (Serial port), and verify Flow Control is off.
 
+.. _pub_edgeai_am62dxx_flashing:
+
 Preparing and Flashing SD Card
 ================================
 
