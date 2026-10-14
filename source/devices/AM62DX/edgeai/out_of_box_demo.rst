@@ -32,7 +32,7 @@ To open the EdgeAI portal, follow below steps:
 2. Open browser and open link:   <ip-addr>:3000
 3. This will start the webserver demo.
 
-The left navigation sidebar groups the portal into three sections:
+The left navigation sidebar starts with ``Home``, then groups the rest into three sections:
 
 - **Demos** — ``Audio Intelligence`` (speech enhancement and audio classification) and
   ``DSP Acceleration`` (2D FFT, biquad filter chain, and workload offload via RPMsg-DMA
@@ -40,6 +40,12 @@ The left navigation sidebar groups the portal into three sections:
 - **Tools** — ``AI Model Inspector`` to upload and browse TIDL model inspection reports,
   including architecture, layer details, and performance metrics.
 - **System** — ``Device Info``, ``Logs``, and ``Help``.
+
+The main panel opens with a welcome banner — ``SITARA AM62D DSP + Edge AI Portal`` — and a
+**GET STARTED** button that jumps straight to the Audio Intelligence demo. Below it, an
+**Explore Demos And Tools** panel repeats the same three entry points (Audio Intelligence, DSP
+Acceleration, AI Model Inspector) as clickable cards with a one-line description each, so a
+first-time visitor does not need to use the sidebar at all to start exploring.
 
 The home screen itself surfaces the board's connection state and identity at a glance:
 
@@ -51,6 +57,10 @@ The home screen itself surfaces the board's connection state and identity at a g
   C7x DSP), ``IP Address``, and system ``Uptime``.
 - **Runtime Status panel** — live ``CPU Load``, ``CPU Avg``, ``CPU Peak``, and ``RAM
   Used/Free``, refreshed continuously while the portal is open.
+
+A status bar at the bottom of every page repeats ``Uptime``, ``CPU Load``, and ``RAM`` for
+quick reference while you are deep in a demo page, along with the portal version, build date,
+and a link to the full documentation.
 
 Speech Enhancement
 ==================
@@ -77,7 +87,9 @@ status indicator (``Ready``, ``Running``, etc.).
 
 To run Speech Enhancement:
 
-1. Select Run Demo to begin the process
+1. Click **Run Demo** in the top-right corner to begin the process. The status line below the
+   Audio Source card changes from ``Ready`` to running, and the button itself becomes
+   **Stop Demo**.
 2. Allow the system to complete the processing cycle.
 3. Once finished, the interface will display both the original input and the processed output audio files.
 4. Use the play button on the input file to hear the original noisy audio.
@@ -86,10 +98,10 @@ To run Speech Enhancement:
 Results:
 
 The ``Visualization`` section plots both a spectrogram and a waveform for the ``Input
-(Noisy)`` and ``Output (Enhanced)`` audio, side by side, with hover tooltips reporting
-time, frequency, and spectral level (or sample amplitude for the waveform). Spectrogram
-controls let you switch between per-plot peak and a fixed -80 to 0 dB scale, and zoom the
-time axis.
+(Noisy)`` and ``Output (Enhanced)`` audio, stacked one above the other, with hover tooltips
+reporting time, frequency, and spectral level (or sample amplitude for the waveform).
+Spectrogram controls let you switch between per-plot peak and a fixed -80 to 0 dB color scale,
+zoom the time axis, and **SAVE ZIP** to download the plotted data for offline analysis.
 
 .. figure:: /images/am62dx_web_gui_speech_enhancement_result_1.png
    :align: center
@@ -104,9 +116,13 @@ time axis.
    per-stage processing times)
 
 Below the waveforms, a ``Processing Times`` table breaks down DSP/TIDL latency per
-processed frame range — ``Pre-Processing (STFT)``, ``Model Inference (GCRN)``,
-``Post-Processing (ISTFT)``, and ``Total Time`` — useful for verifying real-time
-performance on the C7x DSP.
+processed frame range (for example ``0-400``, ``301-701``, ``602-1002`` — overlapping
+ranges reflecting the overlap-save chunking described in
+:ref:`pub_edgeai_am62dx_enhancement_chunking`) into ``Pre-Processing (STFT)``, ``Model
+Inference (GCRN)``, ``Post-Processing (ISTFT)``, and ``Total Time``. In a typical run, STFT
+and ISTFT each take on the order of 10-20 ms per chunk while the GCRN model inference step
+dominates the total, so this table is the quickest way to see where latency budget on the
+DSP is actually going.
 
 
 Audio Classification
@@ -120,25 +136,29 @@ Audio Classification
 This demo demonstrates Audio Classification using the YAMNet & VGGish model on the AM62D C7x DSP.
 
 The ``Model`` panel lets you pick the ``Classification Model`` — ``YAMNet`` (521 AudioSet
-classes, MobileNet v1) or ``VGGish`` (10 UrbanSound8K classes, VGGish features). The
-``Audio Source`` card shows the active input, e.g. ``AM62D2-EVM: pcmdevice-codec-0`` tagged
-``Live Microphone`` (live ALSA capture, 16 kHz mono PCM, 1s chunks). The ``Input Source``
-dropdown lets you switch between the live microphone and a ``REFRESH`` ed device list, or
-``UPLOAD WAV FILE`` to classify a recorded clip instead.
+classes, MobileNet v1) or ``VGGish`` (10 UrbanSound8K classes, VGGish features); the panel
+shows this class-count and backbone caption under whichever model is selected, so you can
+confirm the right one before running. Unlike Speech Enhancement, which defaults to a sample
+WAV file, Audio Classification defaults to live input: the ``Audio Source`` card shows
+``AM62D2-EVM: pcmdevice-codec-0`` tagged ``Live Microphone`` (live ALSA capture, 16 kHz mono
+PCM, 1s chunks). The ``Input Source`` dropdown lets you switch to a different captured device
+with ``REFRESH``, or classify a recorded clip instead with ``UPLOAD WAV FILE``.
 
 To run the Audio Classification Demo:
 
 1. Select Audio Classification from the Demo Selection menu on the left.
-2. Select Model from the model list
-3. Select audio source mic/file from dropdown list
-4. Click the Run Demo button in the top right corner.
-5. Check the audio classification result in output section
+2. Select Model from the model list — YAMNet or VGGish.
+3. Select the audio source: leave it on the live microphone, or pick/upload a WAV file.
+4. Click **Run Demo** in the top-right corner; the status line shows ``Idle`` before you start.
+5. Check the audio classification result in the output section below.
 
-While running, a live status line (``Running Audio Classification``) is shown above the
-results. The ``Classification Results`` panel lists each detected event with a running
-count and timestamp, newest first, and can be cleared with the trash icon. Below it, a
-``Top-10 Predictions Over Patches`` heatmap plots the model's top classes against audio
-patches over time, with a logit-value color scale for confidence.
+While running, a live status line (``Running Audio Classification``) replaces ``Idle`` above
+the results, and the top-right button becomes **Stop Demo**. The ``Classification Results``
+panel lists each detected event with a running count and a wall-clock timestamp, newest first
+(for example ``13  Silence  02:11:06 pm``), and can be cleared with the trash icon. Below it, a
+``Top-10 Predictions Over Patches`` heatmap plots the model's top classes against successive
+audio patches over time, with a logit-value color scale for confidence — useful for seeing
+which classes the model was close to choosing, not just the winning one.
 
 YAMNET Model Result:
 

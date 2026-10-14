@@ -888,39 +888,48 @@ file:
        decodes to the wrong shape, not an error.
 
 The important failure mode to know about: if ``model-path`` does not match any name in the
-Known-Model Table, ``tidspkernel`` does **not** warn you — it silently keeps its defaults
-(``selected-model=2``, ``model-elems`` derived from ``fft-size``). Always set
-``selected-model`` and ``model-elems`` explicitly on every ``tidspkernel`` element when using a
-model outside the reference set, rather than relying on path matching.
-
-Example: A Retrained GCRN Model
-----------------------------------
-
-If you fine-tuned GCRN on your own noise/speech data, the spectral layout is unchanged, so the
-firmware ModelId stays the same (2) — only ``model-path`` changes, and ``selected-model``/
-``model-elems`` are set explicitly rather than relying on the path containing ``gcrn``:
-
-.. code-block:: bash
-
-   MODEL=/usr/share/tvm_inference/artifacts/gcrn_v2
-   gst-launch-1.0 filesrc location=$INPUT ! wavparse ! \
-     audio/x-raw,format=S16LE,rate=16000,channels=1 ! \
-     tidspkernel name=stft msg-type=0x1020 model-path=$MODEL \
-       selected-model=2 model-elems=322 hop-size=160 fft-size=320 \
-       window-frames=401 batch-size=64 max-stream-samples=160480 ! \
-     ... deinterleave, titvm, interleave, istft as in the enhancement pipeline above ...
-
-The same substitution — swap ``model-path``, keep ``selected-model``/``model-elems`` matched to
-the base architecture — works for a retrained YAMNet, VGGish, GTCRN or DCCRN model.
+Known-Model Table *and* ``model-elems`` is left at its default (0), ``tidspkernel`` fails to
+start — it logs ``model-path '...' does not match any known model`` and refuses to go to
+``PLAYING``, rather than guessing. Always set ``selected-model`` and ``model-elems`` explicitly
+on every ``tidspkernel`` element when using a model outside the reference set, so the element
+never depends on path matching to begin with.
 
 A Genuinely New Model Architecture
 --------------------------------------
 
-If your model's spectral layout does not match any existing ModelId — a different number of
-frequency bins, a different windowing scheme, or DSP-side processing none of the reference
-models use — the DSP firmware needs a new ModelId added to implement that processing. That
-firmware change is outside this repository; the GStreamer plugins only send whichever
-``selected-model`` value you configure and trust the firmware to interpret it correctly.
+Nothing in ``tidspkernel`` or ``titvm`` hardcodes which architectures are allowed — the
+plugins never branch on model identity anywhere in the data path. ``selected-model`` is read
+in exactly one place, and only to copy it, unread, into the request sent to the DSP firmware.
+
+Example: A New Model
+----------------------
+
+Say you have a new acoustic-event classifier — not a retrain of YAMNet or VGGish, but a
+different architecture with its own spectral front-end — and firmware ModelId ``5`` has
+already been added to implement it. Wiring it in looks exactly like the YAMNet/VGGish commands
+above, except every property that path-matching would otherwise have guessed for a known model
+is now set explicitly:
+
+.. code-block:: bash
+
+   MODEL=/path/to/my_model
+   gst-launch-1.0 -v filesrc location=$INPUT ! \
+     wavparse ! audio/x-raw,format=S16LE,rate=16000,channels=1 ! \
+     tidspkernel name=stft msg-type=0x1020 model-path=$MODEL \
+       selected-model=5 model-elems=128 hop-size=160 fft-size=256 \
+       window-frames=100 batch-size=64 ! \
+     titvm model-path=$MODEL \
+       class-map-path=/path/to/my_model/labels.txt top-k=3 ! \
+     fakesink
+
+Nothing here differs in kind from the stock YAMNet/VGGish commands — the same properties
+describe *any* model to ``tidspkernel``, known or unknown to it; only ``model-path`` and the
+explicit ``selected-model``/``model-elems``/``fft-size``/``hop-size``/``window-frames`` values
+change. ``titvm`` needs no change at all beyond ``model-path`` — it loads whatever
+``deploy_graph.json``/``deploy_lib.so``/``deploy_param.params`` it finds there, as described
+above. The same pattern applies to a new speech-enhancement architecture: keep the
+``deinterleave``/``titvm``/``interleave``/ISTFT chain from the GCRN pipeline, and set the five
+``tidspkernel`` properties to match your model instead of GCRN's.
 
 Checklist
 ----------
