@@ -339,7 +339,7 @@ Check connected audio devices:
    aplay -l      # Output devices
 
 Remote SSH Connection
-====================
+=====================
 
 For more convenient access and file transfer, you can connect to the EVM via SSH:
 

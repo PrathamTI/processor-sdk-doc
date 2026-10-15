@@ -17,6 +17,7 @@ Home Screen
 
 .. figure:: /images/am62dx_web_gui_home.png
    :align: center
+   :width: 80%
 
    AM62DX out-of-box web GUI home screen
 
@@ -26,11 +27,11 @@ to launch real-time audio analytics and DSP compute demos, inspect AI models via
 TIDL, and monitor live system telemetry like CPU load, memory footprints, and SDK software
 versions.
 
-To open the EdgeAI portal, follow below steps:
+To open the EdgeAI portal, follow these steps:
 
-1. Once the Am62D edgeai image is flashed (See :ref:`pub_edgeai_am62dxx_flashing`), get the ip address of the evm using:  ip addr
-2. Open browser and open link:   <ip-addr>:3000
-3. This will start the webserver demo.
+1. Once the AM62D EdgeAI image is flashed (see :ref:`pub_edgeai_am62dxx_flashing`), get the IP address of the EVM using ``ip addr``
+2. Open a browser and navigate to ``<ip-addr>:3000``
+3. This starts the web server.
 
 The left navigation sidebar starts with ``Home``, then groups the rest into three sections:
 
@@ -67,6 +68,7 @@ Speech Enhancement
 
 .. figure:: /images/am62dx_web_gui_speech_enhancement.png
    :align: center
+   :width: 80%
 
    AM62DX web GUI — speech enhancement demo
 
@@ -95,7 +97,7 @@ To run Speech Enhancement:
 4. Use the play button on the input file to hear the original noisy audio.
 5. Use the play button on the output file to hear the enhanced version.
 
-Results:
+**Speech Enhancement Result**
 
 The ``Visualization`` section plots both a spectrogram and a waveform for the ``Input
 (Noisy)`` and ``Output (Enhanced)`` audio, stacked one above the other, with hover tooltips
@@ -105,12 +107,14 @@ zoom the time axis, and **SAVE ZIP** to download the plotted data for offline an
 
 .. figure:: /images/am62dx_web_gui_speech_enhancement_result_1.png
    :align: center
+   :width: 80%
 
    AM62DX web GUI — speech enhancement demo Result 1 (input vs. enhanced spectrograms)
 
 
 .. figure:: /images/am62dx_web_gui_speech_enhancement_result_2.png
    :align: center
+   :width: 80%
 
    AM62DX web GUI — speech enhancement demo Result 2 (input vs. enhanced waveforms, and
    per-stage processing times)
@@ -130,10 +134,11 @@ Audio Classification
 
 .. figure:: /images/am62dx_web_gui_audio_classification.png
    :align: center
+   :width: 80%
 
    AM62DX web GUI — audio classification demo
 
-This demo demonstrates Audio Classification using the YAMNet & VGGish model on the AM62D C7x DSP.
+This demo demonstrates audio classification using YAMNet and VGGish models on the AM62D C7x DSP.
 
 The ``Model`` panel lets you pick the ``Classification Model`` — ``YAMNet`` (521 AudioSet
 classes, MobileNet v1) or ``VGGish`` (10 UrbanSound8K classes, VGGish features); the panel
@@ -160,20 +165,122 @@ panel lists each detected event with a running count and a wall-clock timestamp,
 audio patches over time, with a logit-value color scale for confidence — useful for seeing
 which classes the model was close to choosing, not just the winning one.
 
-YAMNET Model Result:
+**YAMNET Model Result**
 
 .. figure:: /images/am62dx_web_gui_audio_classification_yamnet_result.png
    :align: center
+   :width: 80%
 
-   AM62DX web GUI — audio classification YAMNet demo. Classification results list events
-   such as ``Silence`` and ``Speech``; the heatmap tracks top-10 classes (Silence, Sound
-   effect, Musical instrument, Vehicle, Speech, Inside/large room, Inside/small room,
-   Music) across 12 audio patches.
+   AM62DX web GUI — audio classification YAMNet demo.
 
-VGGISH Model Result:
+**VGGISH Model Result**
 
 .. figure:: /images/am62dx_web_gui_audio_classification_vggish_result.png
    :align: center
+   :width: 80%
 
-   AM62DX web GUI — audio classification VGGish demo, detecting UrbanSound8K classes such
-   as ``Engine idling`` from live microphone input.
+   AM62DX web GUI — audio classification VGGish demo
+
+Custom Audio GStreamer Pipeline
+================================
+
+The ``Custom Audio Pipeline`` demo in the sidebar lets you run arbitrary GStreamer
+pipelines directly on the AM62D. This is useful for prototyping custom audio processing
+chains, debugging GCRN-based models with custom parameters, or testing YAMNet/VGGish
+classification on different audio sources.
+
+The interface has three main areas:
+
+- **Pipeline Presets** — quick-start tabs that load pre-built pipelines (``Speech
+  Enhancement``, ``Classification (YAMNet)``, ``Classification (VGGish)``, ``Custom``).
+  Pre-configured pipelines are hidden behind the phrase "No saved pipelines yet — write a
+  command and click Save As".
+- **Pipeline Command** — a full ``gst-launch-1.0`` command editor. Copy and paste buttons
+  let you transfer the command to the clipboard or load a saved preset.
+- **Input Files** and **TVM Artifacts** — collapsible panels for staging input audio files
+  and model files (TIDL artifacts).
+
+Below the ``Pipeline Command``, a collapsible ``Input Source`` dropdown shows the device
+or file to be piped into the pipeline, and a status indicator shows whether the system is
+ready, running, or idle.
+
+Speech Enhancement Pipeline with GCRN
+-------------------------------------
+
+This preset runs a GCRN-based noise-suppression pipeline using the C7x DSP and TIDL runtime.
+
+**To run the GCRN speech enhancement pipeline:**
+
+1. Click the ``Speech Enhancement`` preset tab to load the pre-built command.
+2. The ``Pipeline Command`` box displays the full GStreamer command.
+3. Click ``Run Demo`` to start the pipeline.
+4. The ``Pipeline Output`` panel displays processing logs, including DSP execution times,
+   model inference latency, and phase transitions (``PREROLLED``, ``PLAYING``, etc.).
+5. After execution, the output file is ready for playback — download it or use the play
+   button to verify the noise reduction.
+
+.. figure:: /images/am62dx_web_gui_speech_enhancement_gst.png
+   :align: center
+   :width: 80%
+
+   Custom pipeline editor with GCRN-based speech enhancement command pre-loaded
+
+
+.. figure:: /images/am62dx_web_gui_speech_enhancement_gst_result.png
+   :align: center
+   :width: 80%
+
+   Output from the GCRN pipeline
+
+
+Audio Classification with YAMNet
+--------------------------------
+
+This preset runs YAMNet (AudioSet, 521 classes) using the C7x DSP for real-time audio
+event classification.
+
+**To run the YAMNet classification pipeline:**
+
+1. Click the ``Classification (YAMNet)`` tab.
+2. The ``Pipeline Command`` box displays the full GStreamer command for YAMNet classification.
+3. Choose the audio source — a file or live microphone — from the ``Input Source`` dropdown.
+4. Click ``Run Demo``.
+5. The ``Classification Results`` output shows top-3 predictions per audio window with
+   confidence logits; execution ends after processing the full input.
+
+.. figure:: /images/am62dx_web_gui_speech_classification_gst_yamnet.png
+   :align: center
+   :width: 80%
+
+   YAMNet pipeline command
+
+.. figure:: /images/am62dx_web_gui_speech_classification_gst_yamnet_result.png
+   :align: center
+   :width: 80%
+
+   YAMNet inference output showing top-3 predictions
+
+Audio Classification with VGGish
+--------------------------------
+
+This preset runs VGGish (UrbanSound8K, 10 classes) for environmental sound classification.
+
+**To run the VGGish classification pipeline:**
+
+1. Click the ``Classification (VGGish)`` tab.
+2. The command is similar to YAMNet but uses VGGish model weights and UrbanSound8K class labels.
+3. Select your audio source and click ``Run Demo``.
+4. The output lists detected events with confidence scores for each of the 10 UrbanSound8K classes.
+
+.. figure:: /images/am62dx_web_gui_speech_classification_gst_vggish.png
+   :align: center
+   :width: 80%
+
+   VGGish classification pipeline command
+
+
+.. figure:: /images/am62dx_web_gui_speech_classification_gst_vggish_result.png
+   :align: center
+   :width: 80%
+
+   VGGish inference output
