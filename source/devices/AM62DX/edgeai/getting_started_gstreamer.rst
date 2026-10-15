@@ -264,7 +264,8 @@ GCRN GStreamer Command
 -----------------------
 
 Execute the following command to run the Audio Enhancement pipeline. It
-writes ``/tmp/gst_enhanced.wav`` and plays the same output through ``autoaudiosink``:
+writes ``/tmp/gst_enhanced.wav`` and plays the same output through ``autoaudiosink``.
+Connect headphone to the AM62D EVM to listen to the enhanced audio.
 
 .. code-block:: bash
 
@@ -831,7 +832,7 @@ Compiling the model itself — taking an ONNX graph through quantization and gen
 :ref:`Model Compile and Evaluate <audioai-compile-evaluate>`. This section assumes you already
 have those three artifacts and focuses on wiring them into a GStreamer pipeline.
 
-What You Need
+Requirements:
 --------------
 
 A compiled model directory with the same three files the reference models use:
@@ -843,7 +844,7 @@ A compiled model directory with the same three files the reference models use:
    ├── deploy_lib.so         compiled model library
    └── deploy_param.params   model weights
 
-Beyond the files, you need to know two things about the model that the plugins cannot discover
+Beyond the files, users need to know two things about the model that the plugins cannot discover
 on their own:
 
 - **Its task** — speech enhancement (like GCRN) or classification (like YAMNet/VGGish) —
@@ -852,49 +853,7 @@ on their own:
 - **Its spectral layout** — the FFT size, hop size and window length it was trained with, and
   how many spectral values the DSP firmware must produce per frame for it.
 
-What Works Without Any Changes
---------------------------------
-
-``titvm`` is model-agnostic by design: it loads any directory with the three files above, reads
-input and output shapes directly from ``deploy_graph.json``, and does not check the model name
-or contents against a known list. Point ``model-path`` at your model directory and it loads —
-through the model daemon if one is running, or in-process otherwise, exactly as described in
-:ref:`pub_edgeai_am62dx_titvm_execution`.
-
-What Needs Explicit Configuration
-------------------------------------
-
-``tidspkernel``, by contrast, is **not** model-agnostic, because the signal-processing kernels
-it sends to the DSP firmware are selected by a numeric ModelId, not inferred from your model
-file:
-
-.. list-table::
-   :header-rows: 1
-   :widths: 25 75
-
-   * - Property
-     - What you must set it to
-   * - ``selected-model``
-     - The firmware ModelId whose spectral processing matches your model's training
-       configuration. If your model was fine-tuned from one of the reference architectures
-       (GCRN, GTCRN, DCCRN, VGGish, YAMNet), use that architecture's ModelId from the
-       Known-Model Table in :ref:`pub_edgeai_am62dx_pipeline_elements`. A genuinely new
-       architecture needs a new ModelId added to the DSP firmware first — see below.
-   * - ``model-elems``
-     - The exact number of spectral values per frame your model expects. This must match the
-       model's training configuration; the plugin does not read the graph to verify it for you.
-   * - ``fft-size``, ``hop-size``, ``window-frames``
-     - The same STFT parameters the model was trained with. A mismatch here produces input that
-       decodes to the wrong shape, not an error.
-
-The important failure mode to know about: if ``model-path`` does not match any name in the
-Known-Model Table *and* ``model-elems`` is left at its default (0), ``tidspkernel`` fails to
-start — it logs ``model-path '...' does not match any known model`` and refuses to go to
-``PLAYING``, rather than guessing. Always set ``selected-model`` and ``model-elems`` explicitly
-on every ``tidspkernel`` element when using a model outside the reference set, so the element
-never depends on path matching to begin with.
-
-A Genuinely New Model Architecture
+A New Model Architecture
 --------------------------------------
 
 Nothing in ``tidspkernel`` or ``titvm`` hardcodes which architectures are allowed — the
@@ -942,6 +901,4 @@ Checklist
    explicitly on every ``tidspkernel`` element — do not rely on ``model-path`` matching.
 #. Point ``titvm``'s ``model-path`` at your model directory. No other ``titvm`` changes are
    needed.
-#. Run with ``GST_DEBUG=tidspkernel:6,titvm:6`` the first time, and confirm the shape ``titvm``
-   reports matches what your model expects (see :ref:`pub_edgeai_am62dx_enhancement_chunking`
-   for what that log output looks like).
+#. Run with ``GST_DEBUG=tidspkernel:6,titvm:6`` to debug in case of any failures.
